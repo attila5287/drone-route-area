@@ -62,7 +62,7 @@ export const AreaRoute = ( polygon, userInput ) => {
     }
   }
   zigzagLines.forEach((line) => {
-    line.properties.elevation = [+height+15];
+    line.properties.elevation = [+height+5];
   });
   console.log( "zigzagLines", zigzagLines );
   return turf.featureCollection(zigzagLines);

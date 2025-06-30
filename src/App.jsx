@@ -2,7 +2,7 @@ import './App.css'
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import MapComponent from './Map.jsx';
+import MapBoxExample from './Map.jsx';
 
 import "bootswatch/dist/slate/bootstrap.min.css";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -15,7 +15,7 @@ function App() {
 
   return (
     <>
-      <MapComponent token={MAPBOX_ACCESS_TOKEN}/>
+      <MapBoxExample token={MAPBOX_ACCESS_TOKEN}/>
     </>
   )
 }

@@ -1,5 +1,5 @@
 export const DefaultUserInput = {
-  height: 20,
+  height: 10,
   angleCourse: 4,
   stepCount: 8,
 };

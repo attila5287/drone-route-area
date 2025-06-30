@@ -127,17 +127,6 @@ const MapBoxExample = ({token}) => {
          mapRef.current.addSource("area-line-src", {
            type: "geojson",
            data: AreaRoute(testPolygon, DefaultUserInput),
-         });
-
-         mapRef.current.addLayer({
-           id: "area-line-layer",
-           type: "line",
-           source: "area-line-src",
-         });
-         // console.log(mode + " gen'd route -Line- layer ", generatedRoute);
-         mapRef.current.addSource(`area-line-src`, {
-           type: "geojson",
-           data: AreaRoute(testPolygon, DefaultUserInput),
            lineMetrics: true,
          });
          // base config for 2 line layers hrz/vert
