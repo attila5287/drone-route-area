@@ -28,7 +28,7 @@ function App() {
       >
         <a className="navbar-brand" href="https://www.droneqube.com">
           <img
-            src="./src/assets/DRONEQUBE_LOGO.svg"
+            src="/DRONEQUBE_LOGO.svg"
             alt="Logo"
             style={{ height: "12px" }}
           />
