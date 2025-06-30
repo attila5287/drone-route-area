@@ -71,14 +71,14 @@ export default function InputPanel({
   const handleDecrement = (key, maxConstraint) => {
     setUserInput({
       ...userInput,
-      [key]: Math.max(maxConstraint, Number(userInput[key]) - 1),
+      [key]: Math.max(maxConstraint, userInput[key] - 1),
     });
   };
 
   const handleIncrement = (key) => {
     setUserInput({
       ...userInput,
-      [key]: Number(userInput[key]) + 1,
+      [key]: userInput[key] + 1,
     });
   };
 

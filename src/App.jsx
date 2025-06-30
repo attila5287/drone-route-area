@@ -34,7 +34,7 @@ function App() {
           />
         </a>
         <a className="nav-item" href="https://www.droneqube.com">
-          <i className="fas fa-wave-square mx-2"></i>
+            <i className="fas fa-wave-square mx-2"></i>
           <span className="navbar-text">Area Route</span>
         </a>
       </nav>
