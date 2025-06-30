@@ -30,6 +30,30 @@ const MapBoxExample = ({token}) => {
   const [roundedArea, setRoundedArea] = useState();
   const [userInput, setUserInput] = useState(DefaultUserInput);
 
+  // Update route when userInput changes
+  useEffect(() => {
+    if (mapRef.current && mapRef.current.getSource("area-line-src")) {
+      const updatedRoute = AreaRoute(testPolygon, userInput);
+      mapRef.current.getSource("area-line-src").setData(updatedRoute);
+      mapRef.current.triggerRepaint();
+    }
+  }, [userInput]);
+
+  // Update blue extrusion height based on minimum elevation
+  useEffect(() => {
+    if (mapRef.current && mapRef.current.getLayer("user-extrusion")) {
+      const { elevationStart, elevationMid, elevationEnd } = userInput;
+      const minElevation = Math.min(elevationStart, elevationMid, elevationEnd);
+      const blueExtrusionHeight = Math.max(1, minElevation - 1); // At least 1m high
+      
+      mapRef.current.setPaintProperty(
+        "user-extrusion",
+        "fill-extrusion-height",
+        blueExtrusionHeight
+      );
+    }
+  }, [userInput]);
+
   useEffect(() => {
     mapRef.current = new mapboxgl.Map( {
       accessToken: token,
