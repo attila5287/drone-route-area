@@ -8,9 +8,12 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { testAgriField } from './data/testAgriField.js';
 import { testPolygon } from './data/testdata.js';
+import { AreaRoute } from './logic/AreaRoute.jsx';
+import { DefaultUserInput } from './config/DefaultUserInput.jsx';
 
 console.log( testAgriField )
 console.log( testPolygon )
+console.log( AreaRoute( testPolygon, DefaultUserInput ) )
 
 
 const MAP_CENTER = [27.14482, 38.42933];
@@ -71,59 +74,112 @@ const MapBoxExample = ({token}) => {
     }
 
        mapRef.current.on( 'style.load', () => {
-    console.log( mapRef.current.style.loaded() )
-          mapRef.current.addSource("agri-field-src", {
-            type: "geojson",
-            data: testAgriField,
-          });
+         console.log(mapRef.current.style.loaded());
+         mapRef.current.addSource("agri-field-src", {
+           type: "geojson",
+           data: testAgriField,
+         });
 
-          mapRef.current.addLayer({
-            id: "agri-field-extrusion",
-            type: "fill-extrusion",
-            source: "agri-field-src",
-            paint: {
-              "fill-extrusion-color": "darkgreen",
-              "fill-extrusion-height":5,
-              "fill-extrusion-base": 0,
-              "fill-extrusion-opacity": 0.8,
-            },
-          });
+         mapRef.current.addLayer({
+           id: "agri-field-extrusion",
+           type: "fill-extrusion",
+           source: "agri-field-src",
+           paint: {
+             "fill-extrusion-color": "darkgreen",
+             "fill-extrusion-height": 5,
+             "fill-extrusion-base": 0,
+             "fill-extrusion-opacity": 0.8,
+           },
+         });
 
-          mapRef.current.addSource("user-extrusion-src", {
-            type: "geojson",
-            data: testPolygon,
-          });
+         mapRef.current.addSource("user-extrusion-src", {
+           type: "geojson",
+           data: testPolygon,
+         });
 
-          mapRef.current.addLayer({
-            id: "user-extrusion",
-            type: "fill-extrusion",
-            source: "user-extrusion-src",
-            paint: {
-              "fill-extrusion-height": 10,
-              "fill-extrusion-base": 0,
-              "fill-extrusion-color": "SkyBlue",
-              "fill-extrusion-opacity": 0.5,
-              "fill-extrusion-emissive-strength": 0.39,
-              "fill-extrusion-flood-light-color": "DarkTurquoise",
-              "fill-extrusion-flood-light-ground-radius": 0.5,
-              "fill-extrusion-ambient-occlusion-wall-radius": 0,
-              "fill-extrusion-ambient-occlusion-radius": 6.0,
-              "fill-extrusion-ambient-occlusion-intensity": 0.9,
-              "fill-extrusion-ambient-occlusion-ground-attenuation": 0.9,
-              "fill-extrusion-vertical-gradient": false,
-              "fill-extrusion-line-width": 0, //outwards like a wall
-              "fill-extrusion-flood-light-wall-radius": 20,
-              "fill-extrusion-flood-light-intensity": 0.9,
-              "fill-extrusion-flood-light-ground-radius": 20,
-              "fill-extrusion-cutoff-fade-range": 0,
-              "fill-extrusion-rounded-roof": true,
-              "fill-extrusion-cast-shadows": false,
-            },
-          });
+         mapRef.current.addLayer({
+           id: "user-extrusion",
+           type: "fill-extrusion",
+           source: "user-extrusion-src",
+           paint: {
+             "fill-extrusion-height": 10,
+             "fill-extrusion-base": 0,
+             "fill-extrusion-color": "SkyBlue",
+             "fill-extrusion-opacity": 0.5,
+             "fill-extrusion-emissive-strength": 0.39,
+             "fill-extrusion-flood-light-color": "DarkTurquoise",
+             "fill-extrusion-flood-light-ground-radius": 0.5,
+             "fill-extrusion-ambient-occlusion-wall-radius": 0,
+             "fill-extrusion-ambient-occlusion-radius": 6.0,
+             "fill-extrusion-ambient-occlusion-intensity": 0.9,
+             "fill-extrusion-ambient-occlusion-ground-attenuation": 0.9,
+             "fill-extrusion-vertical-gradient": false,
+             "fill-extrusion-line-width": 0, //outwards like a wall
+             "fill-extrusion-flood-light-wall-radius": 20,
+             "fill-extrusion-flood-light-intensity": 0.9,
+             "fill-extrusion-flood-light-ground-radius": 20,
+             "fill-extrusion-cutoff-fade-range": 0,
+             "fill-extrusion-rounded-roof": true,
+             "fill-extrusion-cast-shadows": false,
+           },
+         });
 
+         mapRef.current.addSource("area-line-src", {
+           type: "geojson",
+           data: AreaRoute(testPolygon, DefaultUserInput),
+         });
 
+         mapRef.current.addLayer({
+           id: "area-line-layer",
+           type: "line",
+           source: "area-line-src",
+         });
+         // console.log(mode + " gen'd route -Line- layer ", generatedRoute);
+         mapRef.current.addSource(`area-line-src`, {
+           type: "geojson",
+           data: AreaRoute(testPolygon, DefaultUserInput),
+           lineMetrics: true,
+         });
+         // base config for 2 line layers hrz/vert
+         const paintLine = {
+           "line-emissive-strength": 1.0,
+           "line-blur": 0.25,
+           "line-width": 2.75,
+           "line-color": "limegreen",
+         };
+         let layoutLine = {
+           // shared layout between two layers
+           "line-z-offset": [
+             "at-interpolated",
+             [
+               "*",
+               ["line-progress"],
+               ["-", ["length", ["get", "elevation"]], 1],
+             ],
+             ["get", "elevation"],
+           ],
+           "line-elevation-reference": "sea",
+           "line-cap": "round",
+         };
 
+         layoutLine["line-cross-slope"] = 0;
+         mapRef.current.addLayer({
+           id: `area-line-horizontal`,
+           type: "line",
+           source: `area-line-src`,
+           layout: layoutLine,
+           paint: paintLine,
+         });
 
+         // elevated-line-vert
+         layoutLine["line-cross-slope"] = 1;
+         mapRef.current.addLayer({
+           id: `area-line-vertical`,
+           type: "line",
+           source: `area-line-src`,
+           layout: layoutLine,
+           paint: paintLine,
+         });
        } );
     
     return () => {
@@ -140,25 +196,24 @@ const MapBoxExample = ({token}) => {
         style={{
           borderRadius: 10,
           opacity: 0.7,
-          height: 50,
+          height:60,
           width: 150,
           position: 'absolute',
           bottom: 10,
           left: 140,
-          padding: 10,
+          padding: 2,
           textAlign: 'center'
         }}
       >
-        <i className="fas fa-info-circle fa-pull-left text-lg"></i>
+        <i className="fas fa-info-circle fa-pull-left text-xl m-1"></i>
         { !roundedArea && <p style={paragraphStyle}>Draw a polygon</p>}
-        { roundedArea && <p style={paragraphStyle}>Select polygon to edit vertices</p>}
+        { roundedArea && <p style={paragraphStyle}>Select polygon to edit</p>}
         <div id="calculated-area">
           {roundedArea && (
             <>
               <p style={paragraphStyle}>
-                <strong>{roundedArea}</strong>
+                <strong>{roundedArea} m²</strong>
               </p>
-              <p style={paragraphStyle}>square meters</p>
             </>
           )}
         </div>
