@@ -34,19 +34,36 @@ const MapBoxExample = ({token}) => {
 
   // Update layers function
   const updateLayers = (polygonData) => {
-    if (mapRef.current && mapRef.current.isStyleLoaded() && polygonData && polygonData.features.length > 0) {
+    if (mapRef.current && mapRef.current.isStyleLoaded() && polygonData) {
       try {
+        console.log("Updating layers with data:", polygonData);
+        
+        // Validate polygon data
+        if (!polygonData.features || polygonData.features.length === 0) {
+          console.warn("No features in polygon data, skipping layer updates");
+          return;
+        }
+        
         // Update blue extrusion layer
         const userExtrusionSource = mapRef.current.getSource("user-extrusion-src");
         if (userExtrusionSource) {
           userExtrusionSource.setData(polygonData);
+          console.log("Updated blue extrusion layer");
         }
         
         // Update line layer with route
         const areaLineSource = mapRef.current.getSource("area-line-src");
         if (areaLineSource) {
           const updatedRoute = AreaRoute(polygonData, userInput);
-          areaLineSource.setData(updatedRoute);
+          console.log("Generated route:", updatedRoute);
+          
+          // Validate route data before setting
+          if (updatedRoute && updatedRoute.features && updatedRoute.features.length > 0) {
+            areaLineSource.setData(updatedRoute);
+            console.log("Updated line layer");
+          } else {
+            console.warn("Invalid route data generated");
+          }
         }
         
         // Update blue extrusion height based on minimum elevation
@@ -60,11 +77,13 @@ const MapBoxExample = ({token}) => {
             "fill-extrusion-height",
             blueExtrusionHeight
           );
+          console.log("Updated extrusion height to:", blueExtrusionHeight);
         }
         
         mapRef.current.triggerRepaint();
       } catch (error) {
-        console.warn("Error updating layers:", error);
+        console.error("Error updating layers:", error);
+        console.error("Error details:", error.message, error.stack);
       }
     }
   };
@@ -78,6 +97,7 @@ const MapBoxExample = ({token}) => {
           updateLayers(data);
         } else {
           // Use testPolygon as fallback when no user drawing
+          console.log("No user drawings, using testPolygon fallback");
           updateLayers(testPolygon);
         }
       } catch (error) {
@@ -136,6 +156,7 @@ const MapBoxExample = ({token}) => {
         setRoundedArea();
         
         // When user deletes all drawings, revert to testPolygon
+        console.log("User deleted all drawings, reverting to testPolygon");
         updateLayers(testPolygon);
         
         if (e.type !== 'draw.delete') alert('Click the map to draw a polygon.');
@@ -171,7 +192,7 @@ const MapBoxExample = ({token}) => {
            source: "agri-field-src2",
            paint: {
              "fill-extrusion-color": "olive",
-             "fill-extrusion-height": ["get", "elevation"],
+             "fill-extrusion-height": 20,
              "fill-extrusion-base": 0,
              "fill-extrusion-opacity": 0.8,
            },
