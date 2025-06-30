@@ -244,7 +244,7 @@ const MapBoxExample = ({token}) => {
     <>
       <div ref={mapContainerRef} id="map" style={{ height: '100%' }}></div>
        
-      <InputPanel userInput={userInput} setUserInput={setUserInput} />
+      {roundedArea && <InputPanel userInput={userInput} setUserInput={setUserInput} /> }
        
       <div
         className="calculation-box bg-dark  text-secondary"
