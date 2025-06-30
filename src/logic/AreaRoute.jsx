@@ -3,7 +3,7 @@ import * as turf from "@turf/turf";
 import { DefaultUserInput } from '../config/DefaultUserInput.jsx';
 
 export const AreaRoute = ( polygon, userInput ) => {
-    const {height, stepCount , angleCourse = (90 * Math.PI) / 180 } = userInput || DefaultUserInput;
+    const { elevationStart, elevationMid, elevationEnd, stepCount , angleCourse = (90 * Math.PI) / 180 } = userInput || DefaultUserInput;
   
   console.log( userInput );
   console.log( polygon )
@@ -61,9 +61,15 @@ export const AreaRoute = ( polygon, userInput ) => {
       zigzagLines.push(turf.lineString([currentEnd, nextStart]));
     }
   }
+  // Merge all zigzag lines into one continuous LineString
+  const allCoordinates = [];
   zigzagLines.forEach((line) => {
-    line.properties.elevation = [+height+5];
+    allCoordinates.push(...line.geometry.coordinates);
   });
-  console.log( "zigzagLines", zigzagLines );
-  return turf.featureCollection(zigzagLines);
+  
+  const mergedLine = turf.lineString(allCoordinates);
+  mergedLine.properties.elevation = [elevationStart, elevationMid, elevationEnd];
+  
+  console.log( "mergedLine", mergedLine );
+  return turf.featureCollection([mergedLine]);
 };

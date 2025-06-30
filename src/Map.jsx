@@ -11,9 +11,9 @@ import { testPolygon } from './data/testdata.js';
 import { AreaRoute } from './logic/AreaRoute.jsx';
 import { DefaultUserInput } from './config/DefaultUserInput.jsx';
 
-console.log( testAgriField )
-console.log( testPolygon )
-console.log( AreaRoute( testPolygon, DefaultUserInput ) )
+// console.log( testAgriField )
+// console.log( testPolygon )
+// console.log( AreaRoute( testPolygon, DefaultUserInput ) )
 
 
 const MAP_CENTER = [27.14482, 38.42933];

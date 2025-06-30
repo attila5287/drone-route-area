@@ -1,11 +1,5 @@
 import React from "react";
 import { DefaultUserInput } from "./config/DefaultUserInput";
-
-// elevationStart: 15,
-// elevationMid: 15,
-// elevationEnd: 15,
-// angleCourse: 4,
-// stepCount: 8,
 export default function InputPanel({
   userInput,
   setUserInput,
@@ -39,10 +33,10 @@ export default function InputPanel({
     {
       key: 'elevationEnd',
       label: 'Elevation End',
-      textColor: 'text-success',
-      buttonColor: 'text-success',
+      textColor: 'text-info',
+      buttonColor: 'text-info',
       btnClass: 'add-anime',
-      iconColor: 'btn-success',
+      iconColor: 'btn-info',
       icon: 'fa-text-width',
       inputId: 'user-tolerance-w',
       min: 1,
