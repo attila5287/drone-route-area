@@ -8,6 +8,12 @@ export const AreaRoute = ( polygon, userInput ) => {
   console.log( userInput );
   console.log( polygon )
 
+  // Check if polygon data is valid
+  if (!polygon || !polygon.features || polygon.features.length === 0) {
+    console.warn("No valid polygon data provided to AreaRoute");
+    return { type: "FeatureCollection", features: [] };
+  }
+
   const bbox = turf.bbox(polygon);
   const [minX, minY, maxX, maxY] = bbox;
 

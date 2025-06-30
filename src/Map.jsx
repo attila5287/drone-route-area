@@ -28,8 +28,38 @@ const paragraphStyle = {
 const MapBoxExample = ({token}) => {
   const mapContainerRef = useRef();
   const mapRef = useRef();
+  const drawRef = useRef();
   const [roundedArea, setRoundedArea] = useState();
   const [userInput, setUserInput] = useState(DefaultUserInput);
+
+  const updateArea = (e) => {
+    const data = drawRef.current.getAll();
+    if (data && data.features && data.features.length > 0) {
+      const area = turf.area(data);
+      setRoundedArea( Math.round( area * 100 ) / 100 );
+      console.log(data);
+      
+      // Update the blue extrusion source with drawn polygon data
+      if (mapRef.current.getSource("user-extrusion-src")) {
+        mapRef.current.getSource("user-extrusion-src").setData(data);
+      }
+      
+      // Update the route line source with new user input
+      if (mapRef.current.getSource("area-line-src")) {
+        mapRef.current.getSource("area-line-src").setData(AreaRoute(data, userInput));
+      }
+    } else {
+      setRoundedArea();
+      // Clear the sources when no polygon is drawn
+      if (mapRef.current.getSource("user-extrusion-src")) {
+        mapRef.current.getSource("user-extrusion-src").setData({type: "FeatureCollection", features: []});
+      }
+      if (mapRef.current.getSource("area-line-src")) {
+        mapRef.current.getSource("area-line-src").setData({type: "FeatureCollection", features: []});
+      }
+      if (e.type !== 'draw.delete') alert('Click the map to draw a polygon.');
+    }
+  };
 
   useEffect(() => {
     mapRef.current = new mapboxgl.Map( {
@@ -47,7 +77,7 @@ const MapBoxExample = ({token}) => {
       },
     });
 
-    const draw = new MapboxDraw({
+    drawRef.current = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
         polygon: true,
@@ -57,23 +87,11 @@ const MapBoxExample = ({token}) => {
       },
       defaultMode: "draw_polygon",
     });
-    mapRef.current.addControl(draw);
+    mapRef.current.addControl(drawRef.current);
 
     mapRef.current.on('draw.create', updateArea);
     mapRef.current.on('draw.delete', updateArea);
     mapRef.current.on('draw.update', updateArea);
-
-    function updateArea(e) {
-      const data = draw.getAll();
-      if (data.features.length > 0) {
-        const area = turf.area(data);
-        setRoundedArea( Math.round( area * 100 ) / 100 );
-        console.log(data);
-      } else {
-        setRoundedArea();
-        if (e.type !== 'draw.delete') alert('Click the map to draw a polygon.');
-      }
-    }
 
        mapRef.current.on( 'style.load', () => {
          console.log(mapRef.current.style.loaded());
@@ -93,20 +111,21 @@ const MapBoxExample = ({token}) => {
              "fill-extrusion-opacity": 0.8,
            },
          });
-         mapRef.current.addSource("agri-field-src2", {
+
+         mapRef.current.addSource("agri-field2-src", {
            type: "geojson",
            data: testAgriField2,
          });
 
          mapRef.current.addLayer({
-           id: "agri-field-extrusion2",
+           id: "agri-field2-extrusion",
            type: "fill-extrusion",
-           source: "agri-field-src2",
+           source: "agri-field2-src",
            paint: {
-             "fill-extrusion-color": "darkgreen",
+             "fill-extrusion-color": "olivedrab",
              "fill-extrusion-height": ["get", "elevation"],
              "fill-extrusion-base": 0,
-             "fill-extrusion-opacity": 0.8,
+             "fill-extrusion-opacity": 0.7,
            },
          });
 
@@ -194,13 +213,30 @@ const MapBoxExample = ({token}) => {
     };
   }, []);
 
-  // useEffect to update route when userInput changes
+  // Update route when userInput changes (from InputPanel buttons)
   useEffect(() => {
     if (mapRef.current && mapRef.current.getSource("area-line-src")) {
-      // Update the source data with new userInput
-      mapRef.current.getSource("area-line-src").setData(AreaRoute(testPolygon, userInput));
-      // Trigger repaint to update the 3D line rendering
-      mapRef.current.triggerRepaint();
+      // Check if we have drawn data
+      const drawnData = drawRef.current?.getAll();
+      const hasDrawnPolygon = drawnData && drawnData.features && drawnData.features.length > 0;
+      
+      try {
+        let routeData;
+        if (hasDrawnPolygon) {
+          routeData = AreaRoute(drawnData, userInput);
+          console.log("Generated route from drawn polygon:", routeData);
+        } else {
+          routeData = AreaRoute(testPolygon, userInput);
+          console.log("Generated route from test polygon:", routeData);
+        }
+        
+        if (routeData && routeData.features) {
+          mapRef.current.getSource("area-line-src").setData(routeData);
+        }
+      } catch (error) {
+        console.warn("Error generating route:", error);
+        // Don't clear the data, keep what we have
+      }
     }
   }, [userInput]);
 
