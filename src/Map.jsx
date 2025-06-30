@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import * as turf from "@turf/turf";
-
-import InputPanel from './components/InputPanel';
+import './assets/style.css';
+import InputPanel from './InputPanel.jsx';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { testAgriField } from './data/testAgriField.js';
@@ -28,6 +28,7 @@ const MapBoxExample = ({token}) => {
   const mapContainerRef = useRef();
   const mapRef = useRef();
   const [roundedArea, setRoundedArea] = useState();
+  const [userInput, setUserInput] = useState(DefaultUserInput);
 
   useEffect(() => {
     mapRef.current = new mapboxgl.Map( {
@@ -86,7 +87,7 @@ const MapBoxExample = ({token}) => {
            source: "agri-field-src",
            paint: {
              "fill-extrusion-color": "darkgreen",
-             "fill-extrusion-height": 5,
+             "fill-extrusion-height": ["get", "elevation"],
              "fill-extrusion-base": 0,
              "fill-extrusion-opacity": 0.8,
            },
@@ -179,7 +180,9 @@ const MapBoxExample = ({token}) => {
   return (
     <>
       <div ref={mapContainerRef} id="map" style={{ height: '100%' }}></div>
-      {/* {roundedArea && <InputPanel/>} */}
+       
+      <InputPanel userInput={userInput} setUserInput={setUserInput} />
+       
       <div
         className="calculation-box bg-dark  text-secondary"
         style={{

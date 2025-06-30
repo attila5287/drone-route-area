@@ -4,7 +4,9 @@ export const testAgriField = {
     {
       id: "tJVkag3v6emwhnoClpGxQos0o4oDyk3k",
       type: "Feature",
-      properties: {},
+      properties: {
+        elevation: 10,
+      },
       geometry: {
         coordinates: [
           [
@@ -21,7 +23,9 @@ export const testAgriField = {
     {
       id: "A2LcFWIW1pGp6smi96HjdkNUZQsD8U6F",
       type: "Feature",
-      properties: {},
+      properties: {
+        elevation: 15,
+      },
       geometry: {
         coordinates: [
           [
@@ -38,7 +42,9 @@ export const testAgriField = {
     {
       id: "055lHZAr1jxFMyWjSIteoZFMsqcn4yqw",
       type: "Feature",
-      properties: {},
+      properties: {
+        elevation: 15,
+      },
       geometry: {
         coordinates: [
           [
@@ -55,7 +61,9 @@ export const testAgriField = {
     {
       id: "rSczMKeFC6NJrFaQXjX6Ri70bEYDLStF",
       type: "Feature",
-      properties: {},
+      properties: {
+        elevation: 15,
+      },
       geometry: {
         coordinates: [
           [
@@ -72,7 +80,9 @@ export const testAgriField = {
     {
       id: "3QlDtruVushoLx5pVnI2uOKxZwiYZoVX",
       type: "Feature",
-      properties: {},
+      properties: {
+        elevation: 10,
+      },
       geometry: {
         coordinates: [
           [
@@ -90,7 +100,9 @@ export const testAgriField = {
     {
       id: "Gd0zX9kJfMVWm82XsOG6QWqjCvKwQ2b1",
       type: "Feature",
-      properties: {},
+      properties: {
+        elevation: 10,
+      },
       geometry: {
         coordinates: [
           [
@@ -107,7 +119,9 @@ export const testAgriField = {
     {
       id: "xMeh30kY4dx7PeH0bhJj2pHZTL1gXLcl",
       type: "Feature",
-      properties: {},
+      properties: {
+        elevation: 10,
+      },
       geometry: {
         coordinates: [
           [
