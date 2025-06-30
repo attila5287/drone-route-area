@@ -62,7 +62,7 @@ export const testAgriField = {
       id: "rSczMKeFC6NJrFaQXjX6Ri70bEYDLStF",
       type: "Feature",
       properties: {
-        elevation: 15,
+        elevation: 22,
       },
       geometry: {
         coordinates: [
@@ -81,7 +81,7 @@ export const testAgriField = {
       id: "3QlDtruVushoLx5pVnI2uOKxZwiYZoVX",
       type: "Feature",
       properties: {
-        elevation: 10,
+        elevation: 18,
       },
       geometry: {
         coordinates: [
