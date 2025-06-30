@@ -171,7 +171,7 @@ const MapBoxExample = ({token}) => {
            source: "agri-field-src2",
            paint: {
              "fill-extrusion-color": "olive",
-             "fill-extrusion-height": [],
+            //  "fill-extrusion-height": 20,
              "fill-extrusion-base": 0,
              "fill-extrusion-opacity": 0.8,
            },
