@@ -6,7 +6,12 @@ import * as turf from "@turf/turf";
 import InputPanel from './components/InputPanel';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-impo
+import { testAgriField } from './data/testAgriField.js';
+import { testPolygon } from './data/testdata.js';
+
+console.log( testAgriField )
+console.log( testPolygon )
+
 
 const MAP_CENTER = [27.14482, 38.42933];
 const paragraphStyle = {
@@ -16,15 +21,14 @@ const paragraphStyle = {
   padding: 2
 };
 
-const Map = () => {
+const MapBoxExample = ({token}) => {
   const mapContainerRef = useRef();
   const mapRef = useRef();
   const [roundedArea, setRoundedArea] = useState();
 
   useEffect(() => {
-    mapboxgl.accessToken = 'pk.eyJ1IjoiYXR0aWxhNTIiLCJhIjoiY2thOTE3N3l0MDZmczJxcjl6dzZoNDJsbiJ9.bzXjw1xzQcsIhjB_YoAuEw';
-
-    mapRef.current = new mapboxgl.Map({
+    mapRef.current = new mapboxgl.Map( {
+      accessToken: token,
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/standard",
       center: MAP_CENTER,
@@ -42,9 +46,11 @@ const Map = () => {
       displayControlsDefault: false,
       controls: {
         polygon: true,
-        trash: true
+        trash: true,
+        combine_features: true,
+        uncombine_features: true,
       },
-      defaultMode: 'draw_polygon'
+      defaultMode: "draw_polygon",
     });
     mapRef.current.addControl(draw);
 
@@ -57,12 +63,72 @@ const Map = () => {
       if (data.features.length > 0) {
         const area = turf.area(data);
         setRoundedArea( Math.round( area * 100 ) / 100 );
-        console.log(data.features[0].geometry.coordinates);
+        console.log(data);
       } else {
         setRoundedArea();
         if (e.type !== 'draw.delete') alert('Click the map to draw a polygon.');
       }
     }
+
+       mapRef.current.on( 'style.load', () => {
+    console.log( mapRef.current.style.loaded() )
+          mapRef.current.addSource("agri-field-src", {
+            type: "geojson",
+            data: testAgriField,
+          });
+
+          mapRef.current.addLayer({
+            id: "agri-field-extrusion",
+            type: "fill-extrusion",
+            source: "agri-field-src",
+            paint: {
+              "fill-extrusion-color": "darkgreen",
+              "fill-extrusion-height":5,
+              "fill-extrusion-base": 0,
+              "fill-extrusion-opacity": 0.8,
+            },
+          });
+
+          mapRef.current.addSource("user-extrusion-src", {
+            type: "geojson",
+            data: testPolygon,
+          });
+
+          mapRef.current.addLayer({
+            id: "user-extrusion",
+            type: "fill-extrusion",
+            source: "user-extrusion-src",
+            paint: {
+              "fill-extrusion-height": 10,
+              "fill-extrusion-base": 0,
+              "fill-extrusion-color": "SkyBlue",
+              "fill-extrusion-opacity": 0.5,
+              "fill-extrusion-emissive-strength": 0.3,
+              "fill-extrusion-flood-light-color": "DarkTurquoise",
+              "fill-extrusion-flood-light-ground-radius": 1.5,
+              "fill-extrusion-ambient-occlusion-wall-radius": 0,
+              "fill-extrusion-ambient-occlusion-radius": 6.0,
+              "fill-extrusion-ambient-occlusion-intensity": 0.9,
+              "fill-extrusion-ambient-occlusion-ground-attenuation": 0.9,
+              "fill-extrusion-vertical-gradient": false,
+              "fill-extrusion-line-width": 0, //outwards like a wall
+              "fill-extrusion-flood-light-wall-radius": 20,
+              "fill-extrusion-flood-light-intensity": 0.9,
+              "fill-extrusion-flood-light-ground-radius": 20,
+              "fill-extrusion-cutoff-fade-range": 0,
+              "fill-extrusion-rounded-roof": true,
+              "fill-extrusion-cast-shadows": false,
+            },
+          });
+
+
+
+
+       } );
+    
+    return () => {
+      mapRef.current.remove();
+    };
   }, []);
 
   return (
@@ -101,4 +167,4 @@ const Map = () => {
   );
 };
 
-export default Map;
+export default MapBoxExample;
