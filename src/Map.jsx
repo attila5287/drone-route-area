@@ -7,10 +7,11 @@ import InputPanel from './InputPanel.jsx';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { testAgriField } from './data/testAgriField.js';
+import { testAgriField2 } from './data/testAgriField2.js';
 import { testPolygon } from './data/testdata.js';
 import { AreaRoute } from './logic/AreaRoute.jsx';
 import { DefaultUserInput } from './config/DefaultUserInput.jsx';
-
+import { ExtrusionPaint } from './config/ExtrusionPaint.jsx';
 // console.log( testAgriField )
 // console.log( testPolygon )
 // console.log( AreaRoute( testPolygon, DefaultUserInput ) )
@@ -27,30 +28,63 @@ const paragraphStyle = {
 const MapBoxExample = ({token}) => {
   const mapContainerRef = useRef();
   const mapRef = useRef();
+  const drawRef = useRef();
   const [roundedArea, setRoundedArea] = useState();
   const [userInput, setUserInput] = useState(DefaultUserInput);
 
-  // Update route when userInput changes
-  useEffect(() => {
-    if (mapRef.current && mapRef.current.getSource("area-line-src")) {
-      const updatedRoute = AreaRoute(testPolygon, userInput);
-      mapRef.current.getSource("area-line-src").setData(updatedRoute);
-      mapRef.current.triggerRepaint();
+  // Update layers function
+  const updateLayers = (polygonData) => {
+    if (mapRef.current && mapRef.current.isStyleLoaded() && polygonData && polygonData.features.length > 0) {
+      try {
+        // Update blue extrusion layer
+        const userExtrusionSource = mapRef.current.getSource("user-extrusion-src");
+        if (userExtrusionSource) {
+          userExtrusionSource.setData(polygonData);
+        }
+        
+        // Update line layer with route
+        const areaLineSource = mapRef.current.getSource("area-line-src");
+        if (areaLineSource) {
+          const updatedRoute = AreaRoute(polygonData, userInput);
+          areaLineSource.setData(updatedRoute);
+        }
+        
+        // Update blue extrusion height based on minimum elevation
+        if (mapRef.current.getLayer("user-extrusion")) {
+          const { elevationStart, elevationMid, elevationEnd } = userInput;
+          const minElevation = Math.min(elevationStart, elevationMid, elevationEnd);
+          const blueExtrusionHeight = Math.max(1, minElevation - 1);
+          
+          mapRef.current.setPaintProperty(
+            "user-extrusion",
+            "fill-extrusion-height",
+            blueExtrusionHeight
+          );
+        }
+        
+        mapRef.current.triggerRepaint();
+      } catch (error) {
+        console.warn("Error updating layers:", error);
+      }
     }
-  }, [userInput]);
+  };
 
-  // Update blue extrusion height based on minimum elevation
+  // Update layers when userInput changes
   useEffect(() => {
-    if (mapRef.current && mapRef.current.getLayer("user-extrusion")) {
-      const { elevationStart, elevationMid, elevationEnd } = userInput;
-      const minElevation = Math.min(elevationStart, elevationMid, elevationEnd);
-      const blueExtrusionHeight = Math.max(1, minElevation - 1); // At least 1m high
-      
-      mapRef.current.setPaintProperty(
-        "user-extrusion",
-        "fill-extrusion-height",
-        blueExtrusionHeight
-      );
+    if (drawRef.current && mapRef.current && mapRef.current.isStyleLoaded()) {
+      try {
+        const data = drawRef.current.getAll();
+        if (data && data.features.length > 0) {
+          updateLayers(data);
+        } else {
+          // Use testPolygon as fallback when no user drawing
+          updateLayers(testPolygon);
+        }
+      } catch (error) {
+        console.warn("Error in userInput effect:", error);
+        // If draw is not ready yet, use testPolygon
+        updateLayers(testPolygon);
+      }
     }
   }, [userInput]);
 
@@ -80,6 +114,7 @@ const MapBoxExample = ({token}) => {
       },
       defaultMode: "draw_polygon",
     });
+    drawRef.current = draw;
     mapRef.current.addControl(draw);
 
     mapRef.current.on('draw.create', updateArea);
@@ -87,13 +122,22 @@ const MapBoxExample = ({token}) => {
     mapRef.current.on('draw.update', updateArea);
 
     function updateArea(e) {
-      const data = draw.getAll();
+      if (!drawRef.current) return;
+      
+      const data = drawRef.current.getAll();
       if (data.features.length > 0) {
         const area = turf.area(data);
         setRoundedArea( Math.round( area * 100 ) / 100 );
         console.log(data);
+        
+        // Update both extrusion and line layers with user-drawn polygon
+        updateLayers(data);
       } else {
         setRoundedArea();
+        
+        // When user deletes all drawings, revert to testPolygon
+        updateLayers(testPolygon);
+        
         if (e.type !== 'draw.delete') alert('Click the map to draw a polygon.');
       }
     }
@@ -116,6 +160,22 @@ const MapBoxExample = ({token}) => {
              "fill-extrusion-opacity": 0.8,
            },
          });
+         mapRef.current.addSource("agri-field-src2", {
+           type: "geojson",
+           data: testAgriField2,
+         });
+
+         mapRef.current.addLayer({
+           id: "agri-field-extrusion2",
+           type: "fill-extrusion",
+           source: "agri-field-src2",
+           paint: {
+             "fill-extrusion-color": "olive",
+             "fill-extrusion-height": [],
+             "fill-extrusion-base": 0,
+             "fill-extrusion-opacity": 0.8,
+           },
+         });
 
          mapRef.current.addSource("user-extrusion-src", {
            type: "geojson",
@@ -126,27 +186,7 @@ const MapBoxExample = ({token}) => {
            id: "user-extrusion",
            type: "fill-extrusion",
            source: "user-extrusion-src",
-           paint: {
-             "fill-extrusion-height": 10,
-             "fill-extrusion-base": 0,
-             "fill-extrusion-color": "SkyBlue",
-             "fill-extrusion-opacity": 0.5,
-             "fill-extrusion-emissive-strength": 0.39,
-             "fill-extrusion-flood-light-color": "DarkTurquoise",
-             "fill-extrusion-flood-light-ground-radius": 0.5,
-             "fill-extrusion-ambient-occlusion-wall-radius": 0,
-             "fill-extrusion-ambient-occlusion-radius": 6.0,
-             "fill-extrusion-ambient-occlusion-intensity": 0.9,
-             "fill-extrusion-ambient-occlusion-ground-attenuation": 0.9,
-             "fill-extrusion-vertical-gradient": false,
-             "fill-extrusion-line-width": 0, //outwards like a wall
-             "fill-extrusion-flood-light-wall-radius": 20,
-             "fill-extrusion-flood-light-intensity": 0.9,
-             "fill-extrusion-flood-light-ground-radius": 20,
-             "fill-extrusion-cutoff-fade-range": 0,
-             "fill-extrusion-rounded-roof": true,
-             "fill-extrusion-cast-shadows": false,
-           },
+           paint:ExtrusionPaint,
          });
 
          mapRef.current.addSource("area-line-src", {

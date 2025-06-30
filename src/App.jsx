@@ -14,9 +14,33 @@ function App() {
 
   return (
     <>
-      <MapBoxExample token={MAPBOX_ACCESS_TOKEN}/>
+      <nav
+        className="navbar navbar-expand navbar-dark bg-dark"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 2,
+          height: "30px",
+          padding: "5px",
+        }}
+      >
+        <a className="navbar-brand" href="https://www.droneqube.com">
+          <img
+            src="./src/assets/DRONEQUBE_LOGO.svg"
+            alt="Logo"
+            style={{ height: "12px" }}
+          />
+        </a>
+        <a className="nav-item" href="https://www.droneqube.com">
+          <i className="fas fa-wave-square mx-2"></i>
+          <span className="navbar-text">Area Route</span>
+        </a>
+      </nav>
+      <MapBoxExample token={MAPBOX_ACCESS_TOKEN} />
     </>
-  )
+  );
 }
 
 export default App
