@@ -1,10 +1,10 @@
-# Area Route | Mapbox-REACT  
+# Area Route | Mapbox-REACT
 ![ react-badge ](https://raw.githubusercontent.com/attila5287/img_readme/main/new/react_badge_96.png)
 
 |--| Desc | Link |
 |--| ----------- | ----------- |
 |![ gh ][ 1 ]|Code  | https://github.com/attila5287/drone-route-area |
-|![ vercel ][ 2 ]|Vercel-App live demo| https://drone-route-slope.vercel.app/ |
+|![ vercel ][ 2 ]|Vercel-App live demo| https://drone-route-area.vercel.app/ |
 |![ js ][ 3 ]|Pure-JS version  | https://attila5287.github.io/flight-route-3d/ |
 
 [ 1 ]:https://raw.githubusercontent.com/attila5287/img_readme/refs/heads/main/all/ghub.png
@@ -14,7 +14,7 @@
 
 ## Brief Requirements
 > User will draw a line
-> Renders *Blue*  Extrusion Layer with def vals 
+> Renders *Blue*  Extrusion Layer with def vals
 > Renders *Green* Line Layer with def vals
 > User input changes, renders related laayer
 
@@ -75,11 +75,11 @@ geojsonSource.setData({
 
 # GeoJson
 
-> https://www.geoapify.com/geojson-javascript-developer-guide/ 
+> https://www.geoapify.com/geojson-javascript-developer-guide/
 
 
-|Type	|	Coordinates	|Example | Structure	| 
-|--|--|--|--	| 
+|Type	|	Coordinates	|Example | Structure	|
+|--|--|--|--	|
 |Point	 | Feature.Point | number[  ]	|` [ lon_A, lat_A ]` |
 |MultiPoint	| Feature.MultiPoint |number[  ][  ]	|` 	[ [ lon_A, lat_A ], [ lon_B, lat_B ] ] `|
 |LineString	 | Feature.LineString | number[  ][  ]	|` 	[ [ lon_A, lat_A ], [ lon_B, lat_B ], [ lon_C, lat_C ] ]` |
